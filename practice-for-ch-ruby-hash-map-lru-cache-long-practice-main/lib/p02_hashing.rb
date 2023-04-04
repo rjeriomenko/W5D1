@@ -4,30 +4,72 @@ end
 
 class Array #assuming just an array of integers
   def hash
-    # test = []
-    # self.each { |ele| test << ele.to_s(2) }
+    hash = 0
 
-    # test.each do |hashed_ele|
-    #   hashed_ele.to_i(2)
-    # end
+    self.each_with_index do |ele, idx|
+      hash = hash ^ (ele + idx)
+    end
 
-    [stuff]
-    hash = 100000000000000000000000000000 #1 with 29 0's
-    self.each do |ele|
-      hash = hash ^ ele
+    hash
 
   end
 end
 
 class String
   def hash
+    hash = 0
+    alphabet = ("a".."z").to_a
+    upcase_alphabet = ("A".."Z").to_a
+
+    self.each_char.with_index do |char, idx|
+      if alphabet.include?(char)
+        char_alpha_idx = alphabet.index(char)
+      else
+        char_alpha_idx = upcase_alphabet.index(char) + alphabet.length
+      end
+      hash = hash ^ (char_alpha_idx + idx * 10)
+    end
+
+    hash
   end
 end
 
 class Hash
   # This returns 0 because rspec will break if it returns nil
   # Make sure to implement an actual Hash#hash method
+
+  def alpha_to_int(string_char)
+    alphabet = ("a".."z").to_a
+    upcase_alphabet = ("A".."Z").to_a
+
+    if alphabet.include?(string_char)
+      char_alpha_idx = alphabet.index(string_char)
+    else
+      char_alpha_idx = upcase_alphabet.index(string_char) + alphabet.length
+    end
+  end
+
   def hash
-    0
+    hash = 0
+
+    self.each_pair do |key, value|
+      key = key.to_s if key.is_a?(Symbol)
+      if key.is_a?(String)
+        key = key.chars.map { |char| alpha_to_int(char) }
+        key = key.join
+        key = key.to_i
+      end
+
+      value = value.to_s if value.is_a?(Symbol)
+      if value.is_a?(String)
+        value = value.chars.map { |char| alpha_to_int(char) }
+        value = value.join
+        value = value.to_i
+      end
+
+      hash = hash ^ (key * 3 + value * 10)
+    end
+
+    hash
   end
 end
